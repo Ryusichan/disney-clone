@@ -1,39 +1,80 @@
 import React from "react";
 import styled from "styled-components";
+import { useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { auth, provider } from "./firebase";
+import {
+  selectUserName,
+  selectUserEmail,
+  selectUserPhoto,
+  setUserLoginDetails,
+} from "../features/user/userSlice";
 
 const Header = () => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const userName = useSelector(selectUserName);
+  const userPhoto = useSelector(selectUserPhoto);
+
+  const handleAuth = () => {
+    auth
+      .signInWithPopup(provider)
+      .then((result) => {
+        setUser(result.user);
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  };
+
+  const setUser = (user) => {
+    dispatch(
+      setUserLoginDetails({
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+      })
+    );
+  };
   return (
     <Nav>
       <Logo>
         <img alt="" src="/images/disney-plus-logo.png" />
       </Logo>
-      <NavMeanu>
-        <a href="./home">
-          <img src="/images/icon/ic_home.svg" alt="Home" />
-          <span>HOME</span>
-        </a>
-        <a href="./home">
-          <img src="/images/icon/ic_search.svg" alt="SEARCH" />
-          <span>SEARCH</span>
-        </a>
-        <a href="./home">
-          <img src="/images/icon/ic_add.svg" alt="WATCHLIST" />
-          <span>WATCHLIST</span>
-        </a>
-        <a href="./home">
-          <img src="/images/icon/ic_star.svg" alt="ORIGINALS" />
-          <span>ORIGINALS</span>
-        </a>
-        <a href="./home">
-          <img src="/images/icon/ic_movie.svg" alt="MOVIES" />
-          <span>MOVIES</span>
-        </a>
-        <a href="./home">
-          <img src="/images/icon/ic_series.svg" alt="SERIES" />
-          <span>SERIES</span>
-        </a>
-      </NavMeanu>
-      <Login>Login</Login>
+
+      {!userName ? (
+        <Login onClick={handleAuth}>Login</Login>
+      ) : (
+        <>
+          <NavMeanu>
+            <a href="./home">
+              <img src="/images/icon/ic_home.svg" alt="Home" />
+              <span>HOME</span>
+            </a>
+            <a href="./home">
+              <img src="/images/icon/ic_search.svg" alt="SEARCH" />
+              <span>SEARCH</span>
+            </a>
+            <a href="./home">
+              <img src="/images/icon/ic_add.svg" alt="WATCHLIST" />
+              <span>WATCHLIST</span>
+            </a>
+            <a href="./home">
+              <img src="/images/icon/ic_star.svg" alt="ORIGINALS" />
+              <span>ORIGINALS</span>
+            </a>
+            <a href="./home">
+              <img src="/images/icon/ic_movie.svg" alt="MOVIES" />
+              <span>MOVIES</span>
+            </a>
+            <a href="./home">
+              <img src="/images/icon/ic_series.svg" alt="SERIES" />
+              <span>SERIES</span>
+            </a>
+          </NavMeanu>
+          <UserImg src={userPhoto} alt={userName} />
+        </>
+      )}
     </Nav>
   );
 };
@@ -143,6 +184,10 @@ const Login = styled.a`
     color: #000;
     border-color: transparent;
   }
+`;
+
+const UserImg = styled.img`
+  height: 100%;
 `;
 
 export default Header;
